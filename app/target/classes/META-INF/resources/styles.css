@@ -1,0 +1,146 @@
+/* Main Container */
+.main-container {
+    background-color: #f5f7fa;
+}
+
+/* Header Styles */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+    color: white;
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+/* Content Area */
+.content-area {
+    margin: 0 auto;
+}
+
+/* Image Section */
+.image-section {
+    text-align: center;
+    padding: 2rem 0;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.trie-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+/* Input Section */
+.input-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.input-field {
+    font-size: 1.1rem;
+}
+
+/* Predictions Container */
+.predictions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Prediction Cards */
+.prediction-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #667eea;
+}
+
+.prediction-card:nth-child(2) {
+    border-left-color: #764ba2;
+}
+
+.card-title {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Results Area */
+.results-area {
+    min-height: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Prediction Badges */
+.prediction-badge {
+    background: #e3e8ff;
+    color: #667eea;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.prediction-badge:hover {
+    transform: scale(1.05);
+    background: #d4dbff;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.prediction-badge:active {
+    transform: scale(0.98);
+}
+
+/* Character badges in second card */
+.prediction-card:nth-child(2) .prediction-badge {
+    background: #f3e8ff;
+    color: #764ba2;
+}
+
+.prediction-card:nth-child(2) .prediction-badge:hover {
+    background: #e9d5ff;
+    box-shadow: 0 2px 4px rgba(118, 75, 162, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+    }
+    
+    .prediction-card {
+        padding: 1rem;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+}
