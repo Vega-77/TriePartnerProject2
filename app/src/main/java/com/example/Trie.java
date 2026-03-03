@@ -3,7 +3,6 @@ package com.example;
 import java.util.*;
 
 public class Trie {
-
 	private Map<String, Long> words;
 	public class Node {
 		Map<Character, Node> children;
@@ -38,18 +37,81 @@ public class Trie {
 	 * @return block of text with N words
 	 */
 	public String randomTextBlock(int N) {
+		String output = "";
 
-	    return "hello world this is I";
+		for (int i = 0; i < N; i++) {
+			output += " " + randomWord();
+		}
+
+		return output.substring(1);
+	}
+
+	public String randomWord() {
+		return autocompleteWord(null, 1);
 	}
 
 	/**
-	 * Returns a String completing prefix with the most likely word
+	 * Returns a String completing prefix with some likely words (weighted random)
 	 *
 	 * @param prefix word to autocomplee
+	 * @param randomScale amount to vary it by
 	 * @return autocompleted word
 	 */
-	public String autocompleteWord(String prefix) {
-	    return mostLikelyNextWord(prefix);
+	public String autocompleteWord(String prefix, double randomScale) {
+	    String output = "";
+		Node node = root;
+
+		if (prefix == null) prefix = "";
+
+		for (char c : prefix.toCharArray()) {
+			if (!node.children.containsKey(c)) return null;
+			
+			output += c;
+			node = node.children.get(c);
+		}
+
+		while (true) {
+			if (node.children.isEmpty()) break;
+			if (Math.random() < (double) node.endCount / node.passCount) break;
+
+			long index = (long) (Math.random() * randomScale * node.passCount);
+
+			Node selected = null;
+			char selectedChar = 0;
+			for (Map.Entry<Character, Node> entry : node.children.entrySet()) {
+				index -= entry.getValue().passCount;
+
+				if (index > 0) continue;
+
+				selected = entry.getValue();
+				selectedChar = entry.getKey();
+				break;
+			}
+
+			// fallback: if index was too large, just pick the last child
+			if (selected == null) {
+				Map.Entry<Character, Node> last = null;
+				for (Map.Entry<Character, Node> entry : node.children.entrySet()) last = entry;
+				selected = last.getValue();
+				selectedChar = last.getKey();
+			}
+
+			node = selected;
+			output += selectedChar;
+		}
+
+		return output;
+	}
+
+	// mr haver I know this looks like ai naming conventions but I swear I can't think of what to name it
+	// unless I shorten words but thats a terrible crime so I cant do that
+	public record CharacterProbabilityResult(char character, float probablity) implements Comparable {
+		public int compareTo(Object other) {
+			CharacterProbabilityResult cpr = (CharacterProbabilityResult) other;
+			if (probablity < cpr.probablity) return -1;
+			if (probablity > cpr.probablity) return 1;
+			return 0;
+		}
 	}
 
 	/**
@@ -57,21 +119,55 @@ public class Trie {
 	 * after the given prefix, along with their percent likelihood.
 	 *
 	 * @param pre the prefix to search for
-	 * @param N the number of top characters to return
-	 * @return a formatted String of the top N characters and percent
+	 * @return a sorted CharacterProbabilityResult[] of the top N characters and percent
 	 */
-	public String topNLikelyCharsPercent(String pre, int N) {
-		return "a(53%),e (22%), i(18%), o(5%), u(2%) [hardcoded]";
+	public ArrayList<CharacterProbabilityResult> topNLikelyCharsPercent(String pre, int N) {
+		ArrayList<CharacterProbabilityResult> characters = new ArrayList<>();
+		
+		Node parent = fetchNode(pre);
+		if (parent == null) return characters;
+		
+		for (Map.Entry<Character, Node> entry : parent.children.entrySet()) {
+			characters.add(new CharacterProbabilityResult(
+				entry.getKey(), 
+				(float) entry.getValue().passCount / parent.endCount
+			));
+		}
+
+		ArrayList<CharacterProbabilityResult> result = new ArrayList<>();
+
+		Collections.sort(characters);
+
+		for (CharacterProbabilityResult cpr : characters) {
+			if (result.size() == N) break;
+			result.add(cpr);
+		}
+
+		return result;
 	}
 
 	/**
-	 * Returns a valid word that is closest to the given word
+	 * Decrements the frequency of 1 word in the Trie
 	 *
-	 * @param word the invalid word
-	 * @return a valid word in the trie
+	 * @param word the word
+	 * @return whether the delete was successful
 	 */
-	public String spellCheck(String word) {
-		return word;
+	public boolean delete(String word) {
+		if (word == null || word.length() == 0) return false;
+
+		Node node = root;
+
+		for (char c : word.toCharArray()) {
+			node.passCount--;
+
+			if (!node.children.containsKey(c)) return false;
+			else node = node.children.get(c);
+		}
+
+		node.passCount--;
+		node.endCount--;
+
+		return false;
 	}
 
 
@@ -94,12 +190,8 @@ public class Trie {
 	public boolean contains(String word) {
 		if (word == null || word.length() == 0) return false;
 
-		Node node = root;
-
-		for (char c : word.toCharArray()) {
-			if (node.children.containsKey(c)) node = node.children.get(c);
-			else return false;
-		}
+		Node node = fetchNode(word);
+		if (node == null) return false;
 
 		return node.isEndOfWord();
 	}
@@ -107,12 +199,8 @@ public class Trie {
 	public char mostLikelyNextChar(String prefix) {
 		if (prefix == null) return '_';
 
-		Node node = root;
-
-		for (char c : prefix.toCharArray()) {
-			if (node.children.containsKey(c)) node = node.children.get(c);
-			else return '_';
-		}
+		Node node = fetchNode(prefix);
+		if (node == null) return '_';
 
 		char top = '_';
 		long count = 0;
@@ -196,4 +284,15 @@ public class Trie {
             currentWord.deleteCharAt(currentWord.length() - 1);
         }
     }
+
+	private Node fetchNode(String prefix) {
+		Node node = root;
+
+		for (char c : prefix.toCharArray()) {
+			if (node.children.containsKey(c)) node = node.children.get(c);
+			else return null;
+		}
+
+		return node;
+	}
 }
