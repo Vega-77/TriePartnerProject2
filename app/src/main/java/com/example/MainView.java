@@ -9,7 +9,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.util.List;
@@ -20,7 +20,7 @@ public class MainView extends VerticalLayout {
     
     private final TrieController trieController;
     
-    private TextField inputField;
+    private TextArea inputField;
     private Div nextWordResults;
     private Div nextCharResults;
     
@@ -34,17 +34,42 @@ public class MainView extends VerticalLayout {
         
         createHeader();
         
-        VerticalLayout contentArea = new VerticalLayout();
-        contentArea.addClassName("content-area");
-        contentArea.setWidthFull();
-        contentArea.setMaxWidth("1200px");
-        contentArea.setPadding(true);
+        // Create main content area with horizontal layout
+        HorizontalLayout mainContent = new HorizontalLayout();
+        mainContent.setWidthFull();
+        mainContent.setMaxWidth("1400px");
+        mainContent.getStyle()
+            .set("margin", "0 auto")
+            .set("display", "flex")
+            .set("flex-direction", "row");
+        mainContent.setPadding(true);
+        mainContent.setSpacing(true);
+        mainContent.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.START);
         
-        createImageSection(contentArea);
-        createInputSection(contentArea);
-        createPredictionsSection(contentArea);
+        // Left side - input and predictions
+        VerticalLayout leftSection = new VerticalLayout();
+        leftSection.addClassName("left-section");
+        leftSection.getStyle()
+            .set("flex", "1 1 auto")
+            .set("min-width", "0");
+        leftSection.setPadding(false);
+        leftSection.setSpacing(true);
         
-        add(contentArea);
+        createInputSection(leftSection);
+        createPredictionsSection(leftSection);
+        
+        // Right side - image
+        VerticalLayout rightSection = new VerticalLayout();
+        rightSection.addClassName("right-section");
+        rightSection.getStyle()
+            .set("flex", "0 0 450px")
+            .set("max-width", "450px");
+        rightSection.setPadding(false);
+        
+        createImageSection(rightSection);
+        
+        mainContent.add(leftSection, rightSection);
+        add(mainContent);
         
         setupInputListener();
     }
@@ -54,10 +79,17 @@ public class MainView extends VerticalLayout {
         header.addClassName("header");
         header.setWidthFull();
         
-        H1 title = new H1("Trie Word Predictor");
+        H1 title = new H1("FREDDY FAZBEAR'S TEXT PREDICTOR");
         title.addClassName("header-title");
         
-        header.add(title);
+        Span subtitle = new Span("SECURITY SYSTEM - NIGHT SHIFT");
+        subtitle.addClassName("header-subtitle");
+        
+        VerticalLayout headerContent = new VerticalLayout(title, subtitle);
+        headerContent.setPadding(false);
+        headerContent.setSpacing(false);
+        
+        header.add(headerContent);
         add(header);
     }
     
@@ -65,9 +97,10 @@ public class MainView extends VerticalLayout {
         Div imageContainer = new Div();
         imageContainer.addClassName("image-section");
         
-        // Replace with your actual image path
-        Image image = new Image("images/trie-diagram.png", "Trie visualization");
+        // Image is in: src/main/resources/META-INF/resources/fnaf4house.png
+        Image image = new Image("fnaf4house.png", "FNAF Security Camera");
         image.addClassName("trie-image");
+        image.setWidth("100%");
         
         imageContainer.add(image);
         container.add(imageContainer);
@@ -77,16 +110,20 @@ public class MainView extends VerticalLayout {
         Div inputSection = new Div();
         inputSection.addClassName("input-section");
         
-        H2 inputLabel = new H2("Enter Text");
+        H2 inputLabel = new H2("SECURITY INPUT");
         inputLabel.addClassName("section-title");
         
-        inputField = new TextField();
-        inputField.setPlaceholder("Start typing to get predictions...");
+        // Create TextArea for larger text input
+        inputField = new TextArea();
+        inputField.setPlaceholder("ITS ME ITS ME ITS ME");
         inputField.setWidthFull();
         inputField.addClassName("input-field");
+        inputField.setMinHeight("200px");
+        inputField.setMaxHeight("400px");
         
-        Button clearButton = new Button("Clear");
+        Button clearButton = new Button("CLEAR");
         clearButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        clearButton.addClassName("fnaf-button");
         clearButton.addClickListener(e -> handleClear());
         
         inputSection.add(inputLabel, inputField, clearButton);
@@ -101,7 +138,7 @@ public class MainView extends VerticalLayout {
         Div nextWordCard = new Div();
         nextWordCard.addClassName("prediction-card");
         
-        H2 wordTitle = new H2("Next Word Predictions");
+        H2 wordTitle = new H2("NEXT WORD DETECTED");
         wordTitle.addClassName("card-title");
         
         nextWordResults = new Div();
@@ -113,7 +150,7 @@ public class MainView extends VerticalLayout {
         Div nextCharCard = new Div();
         nextCharCard.addClassName("prediction-card");
         
-        H2 charTitle = new H2("Next Character Predictions");
+        H2 charTitle = new H2("NEXT CHARACTER SCAN");
         charTitle.addClassName("card-title");
         
         nextCharResults = new Div();
@@ -149,7 +186,7 @@ public class MainView extends VerticalLayout {
         displayCharPredictions(charPredictions);
     }
     
-    private void displayWordPredictions(java.util.List<String> predictions) {
+    private void displayWordPredictions(List<String> predictions) {
         nextWordResults.removeAll();
         for (String word : predictions) {
             Span badge = createPredictionBadge(word);
@@ -158,7 +195,7 @@ public class MainView extends VerticalLayout {
         }
     }
     
-    private void displayCharPredictions(java.util.List<Character> predictions) {
+    private void displayCharPredictions(List<Character> predictions) {
         nextCharResults.removeAll();
         for (Character ch : predictions) {
             Span badge = createPredictionBadge(String.valueOf(ch));
