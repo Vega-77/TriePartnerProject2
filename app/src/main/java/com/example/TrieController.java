@@ -83,13 +83,13 @@ public class TrieController {
         String prefix = words[words.length - 1];
 
         Set<String> predictions = new HashSet<>();
-        double randomScale = 0.2;
+        double randomScale = 0;
         int attempts = 0;
 
         while (true) {
             String completion = trie.autocompleteWord(prefix, randomScale);
             predictions.add(completion);
-            randomScale *= 2;
+            randomScale += .1;
             attempts++;
             if (predictions.size() == 5) break;
             if (attempts >= 100) break;

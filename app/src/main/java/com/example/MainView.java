@@ -200,6 +200,7 @@ public class MainView extends VerticalLayout {
                 Span s = new Span(word);
                 s.addClassName(trieController.containsWord(word) ? "word-hit" : "word-miss");
                 wordAnalysis.add(s);
+                wordAnalysis.add(new com.vaadin.flow.component.Text(" "));
             }
 
             // predictions
