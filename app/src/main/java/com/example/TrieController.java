@@ -64,7 +64,7 @@ public class TrieController {
 
     private int processLine(String line) {
         String[] words = line.toLowerCase()
-                            .replaceAll("[^a-z\\s]", "")
+                            .replaceAll("[^a-z\\s]", " ")
                             .split("\\s+");
         int count = 0;
         for (String word : words) {
